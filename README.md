@@ -11,4 +11,4 @@ This single file should include:
 - first frame of each video
 - the intensity projection(s) of each video (max, min, and/or mean)
 
-The format of the output file has not yet been decided, but it could be hdf5, json, mat, sqlite, but cannot be straight-text.
+The format of the output file has not yet been decided. It could be hdf5, json, mat, sqlite, but cannot be straight-text.
