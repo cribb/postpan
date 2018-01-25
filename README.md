@@ -5,6 +5,7 @@ The sole purpose of this project is to take a stock dataset (path) outputted fro
 
 ## Required Packages
 - Imagemagick
+- PanopticNerve v7.2.1
 
 
 ## For now, postpan serves as my learning curve project for github.
