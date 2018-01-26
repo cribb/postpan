@@ -1,0 +1,84 @@
+#!/bin/bash
+
+echo "Run_VST with parameters $0 $1 $2 $3"
+
+wd=`pwd`;
+vst_dir="/home/cribb/bin"
+
+# video_spot_tracker="video_spot_tracker_CUDA"
+
+video_spot_tracker="video_spot_tracker_nogui_v8p11"
+# video_spot_tracker="video_spot_tracker_nogui_v8p01-regionsize"
+# video_spot_tracker="video_spot_tracker_7p07"
+
+# $1 is the burst image 
+# $2 is the first frame of the video (e.g. frame0001.pgm) or the video filename itself
+# $3 is the path where the output file will be located
+
+# Set Parameters to be used for tracking and autofind
+export r=12
+export precision=0.01
+export sample_spacing=0.3333
+export border_zone=3
+export tracker_zone=5
+
+# Autofind for brightfield beads
+export maintain=0
+export threshold=0
+export window=10
+export lost_sens=0
+
+# Autofind for fluorescent beads
+export blur_lost_and_found=2
+export center_surround=3
+export maintain_fluorescent=65
+export fluorescent_spot_threshold=0.45
+export fluorescent_max_regions=800
+export intens_lost_sens=0.5
+export fluorescent_max_region_size=6000
+export check_bead_count_interval=25
+
+# Set return value to 254(-2 in C code)
+export RET=254
+
+echo "Finding beads in first video ($1)..."
+while [ $RET -eq 254 ]
+do
+  "$vst_dir"/"$video_spot_tracker" -enable_internal_values -lost_all_colliding_trackers -radius $r -precision $precision -sample_spacing $sample_spacing -dead_zone_around_border $border_zone -dead_zone_around_trackers $tracker_zone -maintain_this_many_beads $maintain -candidate_spot_threshold $threshold -sliding_window_radius $window -maintain_fluorescent_beads $maintain_fluorescent -fluorescent_spot_threshold $fluorescent_spot_threshold -check_bead_count_interval $check_bead_count_interval  -fluorescent_max_regions $fluorescent_max_regions -fluorescent_max_region_size $fluorescent_max_region_size -blur_lost_and_found $blur_lost_and_found -center_surround $center_surround -lost_behavior 1 -intensity_lost_sensitivity $intens_lost_sens -lost_tracking_sensitivity $lost_sens -tracker 0 0 $r -outfile "$3"_tmp "$1"
+  let "RET=$?"
+done
+
+#echo `ls "$3"lottanerve_tmp`
+
+echo "Tracking resulting beads in second video ($2)..."
+export r=12
+export precision=0.01
+export sample_spacing=0.3333
+export border_zone=3
+export tracker_zone=3
+#export maintain=25
+#export threshold=0.8 
+export window=10
+export intens_lost_sens=0.5 
+
+# Brightfield lost tracking sensitivity
+export lost_sens=0.05
+
+
+# old call to video_spot_tracker for tracking beads in Brightfield based on parameters:  still have no way to decide which tracking modality we need to use.  Monoptes has brightfield and fluorescence capability, Panoptes has only fluorescence
+# ./video_spot_tracker_nogui -nogui -log_video 300 -lost_behavior 1 -precision $precision -sample_spacing $sample_spacing -dead_zone_around_border $border_zone -dead_zone_around_trackers $tracker_zone -lost_tracking_sensitivity $lost_sens -tracker 0 0 $r -continue_from "$3"lottanerve_tmp.csv -outfile "$3" "$2"
+
+# set up for fluorescence in Panoptes
+echo
+ls "$3"_tmp*
+echo
+
+## old. below I removed -log_video call to make vrpn files smaller. ## "$vst_dir"/"$video_spot_tracker" -nogui -enable_internal_values -lost_all_colliding_trackers -log_video 300 -lost_behavior 1 -precision $precision -sample_spacing $sample_spacing -dead_zone_around_border $border_zone -dead_zone_around_trackers $tracker_zone -blur_lost_and_found $blur_lost_and_found -center_surround $center_surround -intensity_lost_sensitivity $intens_lost_sens -tracker 0 0 $r -continue_from "$3"_tmp.csv -outfile "$3" "$2"
+"$vst_dir"/"$video_spot_tracker" -enable_internal_values -lost_all_colliding_trackers -lost_behavior 1 -precision $precision -sample_spacing $sample_spacing -dead_zone_around_border $border_zone -dead_zone_around_trackers $tracker_zone -blur_lost_and_found $blur_lost_and_found -center_surround $center_surround -maintain_fluorescent_beads $maintain_fluorescent -intensity_lost_sensitivity $intens_lost_sens -fluorescent_spot_threshold $fluorescent_spot_threshold -check_bead_count_interval $check_bead_count_interval -tracker 0 0 $r -continue_from "$3"_tmp.csv -outfile "$3" "$2"
+
+# Delete temporary files 
+rm -f "$3"_tmp.csv
+rm -f "$3"_tmp.vrpn
+
+echo "Done tracking!"
+
