@@ -9,4 +9,5 @@ The sole purpose of this project is to take a stock dataset (path) outputted fro
 - Video Spot Tracker v8+
 
 ## For now, postpan serves as my learning curve project for github. As such, I've made changes to the file by adding this comment.
+Another minor edit for git to see.
 
