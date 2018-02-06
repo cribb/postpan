@@ -8,5 +8,5 @@ The sole purpose of this project is to take a stock dataset (path) outputted fro
 - PanopticNerve v7.2.1
 - Video Spot Tracker v8+
 
-## For now, postpan serves as my learning curve project for github.
+## For now, postpan serves as my learning curve project for github. As such, I've made changes to the file by adding this comment.
 
